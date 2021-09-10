@@ -1,2 +1,2 @@
-/MDK-ARM/*
-!/MDK-ARM/*.uvprojx
+/MDK-ARM/F407FreeRTOS/*
+!/MDK-ARM/F407FreeRTOS/*.hex
