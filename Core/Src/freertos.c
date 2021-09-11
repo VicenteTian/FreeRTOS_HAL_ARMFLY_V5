@@ -47,7 +47,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
-
+extern uint32_t g_osRuntimeCounter ;
 /* USER CODE END Variables */
 /* Definitions for LED */
 osThreadId_t LEDHandle;
@@ -89,6 +89,23 @@ void StartTaskUserIF(void *argument);
 void StartTaskStart(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
+
+/* Hook prototypes */
+void configureTimerForRunTimeStats(void);
+unsigned long getRunTimeCounterValue(void);
+
+/* USER CODE BEGIN 1 */
+/* Functions needed when configGENERATE_RUN_TIME_STATS is on */
+__weak void configureTimerForRunTimeStats(void)
+{
+g_osRuntimeCounter = 0;
+}
+
+__weak unsigned long getRunTimeCounterValue(void)
+{
+return g_osRuntimeCounter;
+}
+/* USER CODE END 1 */
 
 /**
   * @brief  FreeRTOS initialization
@@ -188,6 +205,7 @@ void StartTaskUserIF(void *argument)
 {
   /* USER CODE BEGIN StartTaskUserIF */
   uint8_t ucKeyCode;
+	uint8_t pcWriteBuffer[200];//该数组过大会导致程序卡死
   /* Infinite loop */
   for (;;)
   {
@@ -197,13 +215,15 @@ void StartTaskUserIF(void *argument)
     {
       switch (ucKeyCode)
       {
-      //K1按下，打印任务执行情�?
+      //K1按下，打印任务执行情�?
       case KEY_DOWN_K1:
         printf("=================================================\r\n");
         printf("NAME      State Pri   Stact No\r\n");
-
+					vTaskList((char *)&pcWriteBuffer);
+					printf("%s\r\n", pcWriteBuffer);
         printf("\r\nName       count         rate\r\n");
-        ;
+        					vTaskGetRunTimeStats((char *)&pcWriteBuffer);
+					printf("%s\r\n", pcWriteBuffer);
         break;
         //K2按下，删除vTaskLED任务
       case KEY_DOWN_K2:
