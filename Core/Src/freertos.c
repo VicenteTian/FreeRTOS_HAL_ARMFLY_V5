@@ -185,14 +185,14 @@ void StartTaskLED(void *argument)
 void StartMsgProTask(void *argument)
 {
   /* USER CODE BEGIN StartMsgProTask */
-  uint8_t var[2] = {0, 255};
+  /*   uint8_t var[2] = {0, 255}; */
   /* Infinite loop */
   for (;;)
   {
-    vcan_sendware((uint8_t *)var, sizeof(var));
+    /*     vcan_sendware((uint8_t *)var, sizeof(var)); */
     osDelay(200);
-    var[0]++;
-    var[1]--;
+    /*     var[0]++;
+    var[1]--; */
   }
   /* USER CODE END StartMsgProTask */
 }
@@ -208,7 +208,7 @@ void StartTaskUserIF(void *argument)
 {
   /* USER CODE BEGIN StartTaskUserIF */
   uint8_t ucKeyCode;
-  uint8_t pcWriteBuffer[200]; //该数组过大会导致程序卡死
+  uint8_t pcWriteBuffer[300]; //该数组过大会导致程序卡死
   /* Infinite loop */
   for (;;)
   {
@@ -309,7 +309,10 @@ void StartTaskStart(void *argument)
 
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
-
+void vApplicationStackOverflowHook(TaskHandle_t xTask, signed char *pcTaskName)
+{
+  printf("\n任务： ：%s 发现栈溢出\n", pcTaskName);
+}
 /* USER CODE END Application */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
