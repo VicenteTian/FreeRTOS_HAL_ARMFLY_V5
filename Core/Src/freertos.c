@@ -47,35 +47,35 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
-extern uint32_t g_osRuntimeCounter ;
+extern uint32_t g_osRuntimeCounter;
 /* USER CODE END Variables */
 /* Definitions for LED */
 osThreadId_t LEDHandle;
 const osThreadAttr_t LED_attributes = {
-  .name = "LED",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityLow2,
+    .name = "LED",
+    .stack_size = 128 * 4,
+    .priority = (osPriority_t)osPriorityLow2,
 };
 /* Definitions for MsgPro */
 osThreadId_t MsgProHandle;
 const osThreadAttr_t MsgPro_attributes = {
-  .name = "MsgPro",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityLow5,
+    .name = "MsgPro",
+    .stack_size = 128 * 4,
+    .priority = (osPriority_t)osPriorityLow5,
 };
 /* Definitions for UserIF */
 osThreadId_t UserIFHandle;
 const osThreadAttr_t UserIF_attributes = {
-  .name = "UserIF",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityLow3,
+    .name = "UserIF",
+    .stack_size = 128 * 4,
+    .priority = (osPriority_t)osPriorityLow3,
 };
 /* Definitions for Start */
 osThreadId_t StartHandle;
 const osThreadAttr_t Start_attributes = {
-  .name = "Start",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
+    .name = "Start",
+    .stack_size = 128 * 4,
+    .priority = (osPriority_t)osPriorityNormal,
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -98,12 +98,12 @@ unsigned long getRunTimeCounterValue(void);
 /* Functions needed when configGENERATE_RUN_TIME_STATS is on */
 __weak void configureTimerForRunTimeStats(void)
 {
-g_osRuntimeCounter = 0;
+  g_osRuntimeCounter = 0;
 }
 
 __weak unsigned long getRunTimeCounterValue(void)
 {
-return g_osRuntimeCounter;
+  return g_osRuntimeCounter;
 }
 /* USER CODE END 1 */
 
@@ -112,7 +112,8 @@ return g_osRuntimeCounter;
   * @param  None
   * @retval None
   */
-void MX_FREERTOS_Init(void) {
+void MX_FREERTOS_Init(void)
+{
   /* USER CODE BEGIN Init */
 
   /* USER CODE END Init */
@@ -153,7 +154,6 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN RTOS_EVENTS */
   /* add events, ... */
   /* USER CODE END RTOS_EVENTS */
-
 }
 
 /* USER CODE BEGIN Header_StartTaskLED */
@@ -188,7 +188,6 @@ void StartMsgProTask(void *argument)
   /* Infinite loop */
   for (;;)
   {
-
     osDelay(200);
   }
   /* USER CODE END StartMsgProTask */
@@ -205,7 +204,7 @@ void StartTaskUserIF(void *argument)
 {
   /* USER CODE BEGIN StartTaskUserIF */
   uint8_t ucKeyCode;
-	uint8_t pcWriteBuffer[200];//该数组过大会导致程序卡死
+  uint8_t pcWriteBuffer[200]; //该数组过大会导致程序卡死
   /* Infinite loop */
   for (;;)
   {
@@ -215,19 +214,19 @@ void StartTaskUserIF(void *argument)
     {
       switch (ucKeyCode)
       {
-      //K1按下，打印任务执行情�?
+      //K1按下，打印任务执行情况
       case KEY_DOWN_K1:
-        printf("=================================================\r\n");
-        printf("NAME      State Pri   Stact No\r\n");
-					vTaskList((char *)&pcWriteBuffer);
-					printf("%s\r\n", pcWriteBuffer);
-        printf("\r\nName       count         rate\r\n");
-        					vTaskGetRunTimeStats((char *)&pcWriteBuffer);
-					printf("%s\r\n", pcWriteBuffer);
+        printf("=================================================\n");
+        printf("任务名             任务状态  优先级    剩余栈    任务序号\n");
+        vTaskList((char *)&pcWriteBuffer);
+        printf("%s\n", pcWriteBuffer);
+        printf("任务名             运行计数       使用率\n");
+        vTaskGetRunTimeStats((char *)&pcWriteBuffer);
+        printf("%s\n", pcWriteBuffer);
         break;
         //K2按下，删除vTaskLED任务
       case KEY_DOWN_K2:
-        printf("K2 delete vTaskLED\r\n");
+        printf("K2 按下，删除任务 vTaskLED\n");
         if (LEDHandle != NULL)
         {
           vTaskDelete(LEDHandle);
@@ -237,15 +236,15 @@ void StartTaskUserIF(void *argument)
 
         //K3按下，重新创建vTaskLED任务
       case KEY_DOWN_K3:
-        
+
         if (LEDHandle == NULL)
         {
-          printf("K3 Rebuild vTaskLED\r\n");
+          printf("K3 按下，重新创建任务 vTaskLED\n");
           LEDHandle = osThreadNew(StartTaskLED, NULL, &LED_attributes);
         }
         else
         {
-          printf("vTaskLED 已存在\r\n");
+          printf("vTaskLED 已存在\n");
         }
         break;
 
@@ -253,11 +252,11 @@ void StartTaskUserIF(void *argument)
       case JOY_DOWN_U:
         if (LEDHandle == NULL)
         {
-          printf("No vTaskLED\r\n");
+          printf("无任务 vTaskLED\n");
         }
         else
         {
-          printf("UP Suspend vTaskLED\r\n");
+          printf("UP 按下，挂起任务 vTaskLED\n");
           vTaskSuspend(LEDHandle);
         }
         break;
@@ -266,11 +265,11 @@ void StartTaskUserIF(void *argument)
       case JOY_DOWN_D:
         if (LEDHandle == NULL)
         {
-          printf("No vTaskLED\r\n");
+          printf("无任务 vTaskLED\n");
         }
         else
         {
-          printf("DOWN Resume vTaskLED\r\n");
+          printf("DOWN 按下，恢复任务 vTaskLED\n");
           vTaskResume(LEDHandle);
         }
         break;
