@@ -185,10 +185,14 @@ void StartTaskLED(void *argument)
 void StartMsgProTask(void *argument)
 {
   /* USER CODE BEGIN StartMsgProTask */
+  uint8_t var[2] = {0, 255};
   /* Infinite loop */
   for (;;)
   {
+    vcan_sendware((uint8_t *)var, sizeof(var));
     osDelay(200);
+    var[0]++;
+    var[1]--;
   }
   /* USER CODE END StartMsgProTask */
 }
