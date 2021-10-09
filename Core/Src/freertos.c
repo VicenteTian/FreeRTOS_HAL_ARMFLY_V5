@@ -208,7 +208,7 @@ void StartTaskUserIF(void *argument)
 {
   /* USER CODE BEGIN StartTaskUserIF */
   uint8_t ucKeyCode;
-  uint8_t pcWriteBuffer[300]; //è¯¥æ•°ç»„è¿‡å¤§ä¼šå¯¼è‡´ç¨‹åºå¡æ­»
+  uint8_t pcWriteBuffer[200]; //¸ÃÊı×é¹ı´ó»áµ¼ÖÂ³ÌĞò¿¨ËÀ
   /* Infinite loop */
   for (;;)
   {
@@ -218,67 +218,72 @@ void StartTaskUserIF(void *argument)
     {
       switch (ucKeyCode)
       {
-      //K1æŒ‰ä¸‹ï¼Œæ‰“å°ä»»åŠ¡æ‰§è¡Œæƒ…å†µ
+      //K1°´ÏÂ£¬´òÓ¡ÈÎÎñÖ´ĞĞÇé¿ö
       case KEY_DOWN_K1:
-        printf("=================================================\n");
-        printf("ä»»åŠ¡å             ä»»åŠ¡çŠ¶æ€  ä¼˜å…ˆçº§    å‰©ä½™æ ˆ    ä»»åŠ¡åºå·\n");
+        printf("=================================================\r\n");
+        printf("ÈÎÎñÃû             ÈÎÎñ×´Ì¬  ÓÅÏÈ¼¶    Ê£ÓàÕ»    ÈÎÎñĞòºÅ\r\n");
         vTaskList((char *)&pcWriteBuffer);
-        printf("%s\n", pcWriteBuffer);
-        printf("ä»»åŠ¡å             è¿è¡Œè®¡æ•°       ä½¿ç”¨ç‡\n");
+        printf("%s\r\n", pcWriteBuffer);
+        printf("ÈÎÎñÃû             ÔËĞĞ¼ÆÊı       Ê¹ÓÃÂÊ\r\n");
         vTaskGetRunTimeStats((char *)&pcWriteBuffer);
-        printf("%s\n", pcWriteBuffer);
+        printf("%s\r\n", pcWriteBuffer);
         break;
-        //K2æŒ‰ä¸‹ï¼Œåˆ é™¤vTaskLEDä»»åŠ¡
+        //K2°´ÏÂ£¬É¾³ıvTaskLEDÈÎÎñ
       case KEY_DOWN_K2:
-        printf("K2 æŒ‰ä¸‹ï¼Œåˆ é™¤ä»»åŠ¡ vTaskLED\n");
         if (LEDHandle != NULL)
         {
+          printf("K2 °´ÏÂ£¬É¾³ıÈÎÎñ vTaskLED\r\n");
           vTaskDelete(LEDHandle);
           LEDHandle = NULL;
         }
+        else
+        {
+          printf("vTaskLED ²»´æÔÚ\r\n");
+        }
+        
         break;
 
-        //K3æŒ‰ä¸‹ï¼Œé‡æ–°åˆ›å»ºvTaskLEDä»»åŠ¡
+        //K3°´ÏÂ£¬ÖØĞÂ´´½¨vTaskLEDÈÎÎñ
       case KEY_DOWN_K3:
 
         if (LEDHandle == NULL)
         {
-          printf("K3 æŒ‰ä¸‹ï¼Œé‡æ–°åˆ›å»ºä»»åŠ¡ vTaskLED\n");
+          printf("K3 °´ÏÂ£¬ÖØĞÂ´´½¨ÈÎÎñ vTaskLED\r\n");
           LEDHandle = osThreadNew(StartTaskLED, NULL, &LED_attributes);
         }
         else
         {
-          printf("vTaskLED å·²å­˜åœ¨\n");
+          printf("vTaskLED ÒÑ´æÔÚ\r\n");
         }
         break;
 
-        /* æ‘‡æ†UPé”®æŒ‰ä¸‹ï¼ŒæŒ‚èµ·ä»»åŠ¡vTaskLED */
+        /* Ò¡¸ËUP¼ü°´ÏÂ£¬¹ÒÆğÈÎÎñvTaskLED */
       case JOY_DOWN_U:
         if (LEDHandle == NULL)
         {
-          printf("æ— ä»»åŠ¡ vTaskLED\n");
+          printf("ÎŞÈÎÎñ vTaskLED\r\n");
         }
         else
         {
-          printf("UP æŒ‰ä¸‹ï¼ŒæŒ‚èµ·ä»»åŠ¡ vTaskLED\n");
+          printf("UP °´ÏÂ£¬¹ÒÆğÈÎÎñ vTaskLED\r\n");
           vTaskSuspend(LEDHandle);
         }
         break;
 
-      /* æ‘‡æ†DOWNé”®æŒ‰ä¸‹ï¼Œæ¢å¤ä»»åŠ¡vTaskLED */
+      /* Ò¡¸ËDOWN¼ü°´ÏÂ£¬»Ö¸´ÈÎÎñvTaskLED */
       case JOY_DOWN_D:
         if (LEDHandle == NULL)
         {
-          printf("æ— ä»»åŠ¡ vTaskLED\n");
+          printf("ÎŞÈÎÎñ vTaskLED\r\n");
         }
         else
         {
-          printf("DOWN æŒ‰ä¸‹ï¼Œæ¢å¤ä»»åŠ¡ vTaskLED\n");
+          printf("DOWN °´ÏÂ£¬»Ö¸´ÈÎÎñ vTaskLED\r\n");
           vTaskResume(LEDHandle);
         }
         break;
 
-      /* å…¶ä»–çš„é”®å€¼ä¸å¤„ç† */
+      /* ÆäËûµÄ¼üÖµ²»´¦Àí */
       default:
         break;
       }
@@ -311,7 +316,7 @@ void StartTaskStart(void *argument)
 /* USER CODE BEGIN Application */
 void vApplicationStackOverflowHook(TaskHandle_t xTask, signed char *pcTaskName)
 {
-  printf("\nä»»åŠ¡ï¼š ï¼š%s å‘ç°æ ˆæº¢å‡º\n", pcTaskName);
+  printf("\nÈÎÎñ£º £º%s ·¢ÏÖÕ»Òç³ö\n", pcTaskName);
 }
 /* USER CODE END Application */
 
