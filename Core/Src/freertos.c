@@ -49,46 +49,25 @@
 /* USER CODE BEGIN Variables */
 extern uint32_t g_osRuntimeCounter;
 /* USER CODE END Variables */
-/* Definitions for LED */
-osThreadId_t LEDHandle;
-const osThreadAttr_t LED_attributes = {
-    .name = "LED",
-    .stack_size = 128 * 4,
-    .priority = (osPriority_t)osPriorityLow2,
-};
-/* Definitions for MsgPro */
-osThreadId_t MsgProHandle;
-const osThreadAttr_t MsgPro_attributes = {
-    .name = "MsgPro",
-    .stack_size = 128 * 4,
-    .priority = (osPriority_t)osPriorityLow5,
-};
-/* Definitions for UserIF */
-osThreadId_t UserIFHandle;
-const osThreadAttr_t UserIF_attributes = {
-    .name = "UserIF",
-    .stack_size = 128 * 4,
-    .priority = (osPriority_t)osPriorityLow3,
-};
-/* Definitions for Start */
-osThreadId_t StartHandle;
-const osThreadAttr_t Start_attributes = {
-    .name = "Start",
-    .stack_size = 128 * 4,
-    .priority = (osPriority_t)osPriorityNormal,
-};
+osThreadId LEDHandle;
+osThreadId MsgProHandle;
+osThreadId UserIFHandle;
+osThreadId StartHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
 
 /* USER CODE END FunctionPrototypes */
 
-void StartTaskLED(void *argument);
-void StartMsgProTask(void *argument);
-void StartTaskUserIF(void *argument);
-void StartTaskStart(void *argument);
+void StartTaskLED(void const *argument);
+void StartMsgProTask(void const *argument);
+void StartTaskUserIF(void const *argument);
+void StartTaskStart(void const *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
+
+/* GetIdleTaskMemory prototype (linked to static allocation support) */
+void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize);
 
 /* Hook prototypes */
 void configureTimerForRunTimeStats(void);
@@ -106,6 +85,19 @@ __weak unsigned long getRunTimeCounterValue(void)
   return g_osRuntimeCounter;
 }
 /* USER CODE END 1 */
+
+/* USER CODE BEGIN GET_IDLE_TASK_MEMORY */
+static StaticTask_t xIdleTaskTCBBuffer;
+static StackType_t xIdleStack[configMINIMAL_STACK_SIZE];
+
+void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize)
+{
+  *ppxIdleTaskTCBBuffer = &xIdleTaskTCBBuffer;
+  *ppxIdleTaskStackBuffer = &xIdleStack[0];
+  *pulIdleTaskStackSize = configMINIMAL_STACK_SIZE;
+  /* place for user code */
+}
+/* USER CODE END GET_IDLE_TASK_MEMORY */
 
 /**
   * @brief  FreeRTOS initialization
@@ -135,25 +127,25 @@ void MX_FREERTOS_Init(void)
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* creation of LED */
-  LEDHandle = osThreadNew(StartTaskLED, NULL, &LED_attributes);
+  /* definition and creation of LED */
+  osThreadDef(LED, StartTaskLED, osPriorityBelowNormal, 0, 128);
+  LEDHandle = osThreadCreate(osThread(LED), NULL);
 
-  /* creation of MsgPro */
-  MsgProHandle = osThreadNew(StartMsgProTask, NULL, &MsgPro_attributes);
+  /* definition and creation of MsgPro */
+  osThreadDef(MsgPro, StartMsgProTask, osPriorityLow, 0, 128);
+  MsgProHandle = osThreadCreate(osThread(MsgPro), NULL);
 
-  /* creation of UserIF */
-  UserIFHandle = osThreadNew(StartTaskUserIF, NULL, &UserIF_attributes);
+  /* definition and creation of UserIF */
+  osThreadDef(UserIF, StartTaskUserIF, osPriorityNormal, 0, 128);
+  UserIFHandle = osThreadCreate(osThread(UserIF), NULL);
 
-  /* creation of Start */
-  StartHandle = osThreadNew(StartTaskStart, NULL, &Start_attributes);
+  /* definition and creation of Start */
+  osThreadDef(Start, StartTaskStart, osPriorityAboveNormal, 0, 128);
+  StartHandle = osThreadCreate(osThread(Start), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
-
-  /* USER CODE BEGIN RTOS_EVENTS */
-  /* add events, ... */
-  /* USER CODE END RTOS_EVENTS */
 }
 
 /* USER CODE BEGIN Header_StartTaskLED */
@@ -163,7 +155,7 @@ void MX_FREERTOS_Init(void)
   * @retval None
   */
 /* USER CODE END Header_StartTaskLED */
-void StartTaskLED(void *argument)
+void StartTaskLED(void const *argument)
 {
   /* USER CODE BEGIN StartTaskLED */
   /* Infinite loop */
@@ -182,7 +174,7 @@ void StartTaskLED(void *argument)
 * @retval None
 */
 /* USER CODE END Header_StartMsgProTask */
-void StartMsgProTask(void *argument)
+void StartMsgProTask(void const *argument)
 {
   /* USER CODE BEGIN StartMsgProTask */
   /*   uint8_t var[2] = {0, 255}; */
@@ -204,7 +196,7 @@ void StartMsgProTask(void *argument)
 * @retval None
 */
 /* USER CODE END Header_StartTaskUserIF */
-void StartTaskUserIF(void *argument)
+void StartTaskUserIF(void const *argument)
 {
   /* USER CODE BEGIN StartTaskUserIF */
   uint8_t ucKeyCode;
@@ -240,7 +232,7 @@ void StartTaskUserIF(void *argument)
         {
           printf("vTaskLED 不存在\r\n");
         }
-        
+
         break;
 
         //K3按下，重新创建vTaskLED任务
@@ -249,7 +241,8 @@ void StartTaskUserIF(void *argument)
         if (LEDHandle == NULL)
         {
           printf("K3 按下，重新创建任务 vTaskLED\r\n");
-          LEDHandle = osThreadNew(StartTaskLED, NULL, &LED_attributes);
+          osThreadDef(LED, StartTaskLED, osPriorityBelowNormal, 0, 128);
+          LEDHandle = osThreadCreate(osThread(LED), NULL);
         }
         else
         {
@@ -300,7 +293,7 @@ void StartTaskUserIF(void *argument)
 * @retval None
 */
 /* USER CODE END Header_StartTaskStart */
-void StartTaskStart(void *argument)
+void StartTaskStart(void const *argument)
 {
   /* USER CODE BEGIN StartTaskStart */
   /* Infinite loop */
