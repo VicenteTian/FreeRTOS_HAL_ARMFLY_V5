@@ -221,10 +221,10 @@ void StartTaskUserIF(void *argument)
       //K1按下，打印任务执行情况
       case KEY_DOWN_K1:
         printf("=================================================\r\n");
-        printf("任务名             任务状态  优先级    剩余栈    任务序号\r\n");
+        printf("任务名                   任务状态     优先级       剩余栈       任务序号\r\n");
         vTaskList((char *)&pcWriteBuffer);
         printf("%s\r\n", pcWriteBuffer);
-        printf("任务名             运行计数       使用率\r\n");
+        printf("任务名                   运行计数                   使用率\r\n");
         vTaskGetRunTimeStats((char *)&pcWriteBuffer);
         printf("%s\r\n", pcWriteBuffer);
         break;
