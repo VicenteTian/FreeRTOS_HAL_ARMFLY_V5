@@ -158,11 +158,22 @@ void MX_FREERTOS_Init(void)
 void StartTaskLED(void const *argument)
 {
   /* USER CODE BEGIN StartTaskLED */
+  TickType_t xLastWakeTime;
+  const TickType_t xFrequency = 200;
+  /* 获取当前的系统时间*/
+  xLastWakeTime = xTaskGetTickCount();
   /* Infinite loop */
   for (;;)
   {
+    /* 进入临界区*/
+    taskENTER_CRITICAL();
+    printf(" 任务 vTaskLED 正在运行\r\n");
+    /* 退出临界区*/
+    taskEXIT_CRITICAL();
+
     HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
-    osDelay(200);
+    /* vTaskDelayUntil 是绝对延迟， vTaskDelay 是相对延迟。*/
+    vTaskDelayUntil(&xLastWakeTime, xFrequency);
   }
   /* USER CODE END StartTaskLED */
 }
@@ -200,7 +211,7 @@ void StartTaskUserIF(void const *argument)
 {
   /* USER CODE BEGIN StartTaskUserIF */
   uint8_t ucKeyCode;
-  uint8_t pcWriteBuffer[200]; //该数组过大会导致程序卡死
+  uint8_t pcWriteBuffer[150]; //该数组过大会导致程序卡死
   /* Infinite loop */
   for (;;)
   {
