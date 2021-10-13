@@ -158,22 +158,24 @@ void MX_FREERTOS_Init(void)
 void StartTaskLED(void const *argument)
 {
   /* USER CODE BEGIN StartTaskLED */
-  TickType_t xLastWakeTime;
-  const TickType_t xFrequency = 200;
+  //TickType_t xLastWakeTime;
+  //const TickType_t xFrequency = 200;
   /* 获取当前的系统时间*/
-  xLastWakeTime = xTaskGetTickCount();
+  //xLastWakeTime = xTaskGetTickCount();
   /* Infinite loop */
   for (;;)
   {
     /* 进入临界区*/
-    taskENTER_CRITICAL();
-    printf(" 任务 vTaskLED 正在运行\r\n");
+    //taskENTER_CRITICAL();
+    //vTaskSuspendAll();
+    printf("任务 vTaskLED 正在运行\r\n");
     /* 退出临界区*/
-    taskEXIT_CRITICAL();
+    //taskEXIT_CRITICAL();
 
     HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+    osDelay(200);
     /* vTaskDelayUntil 是绝对延迟， vTaskDelay 是相对延迟。*/
-    vTaskDelayUntil(&xLastWakeTime, xFrequency);
+    //vTaskDelayUntil(&xLastWakeTime, xFrequency);
   }
   /* USER CODE END StartTaskLED */
 }
@@ -193,7 +195,15 @@ void StartMsgProTask(void const *argument)
   for (;;)
   {
     /*     vcan_sendware((uint8_t *)var, sizeof(var)); */
-    osDelay(200);
+    /* 进入临界区*/
+    //taskENTER_CRITICAL();
+    //vTaskSuspendAll(); /* 开启调度锁*/
+    printf("任务 vTaskMsgPro 正在运行\r\n");
+    /* 退出临界区*/
+    //taskEXIT_CRITICAL();
+    //if (!xTaskResumeAll()) /* 关闭调度锁，如果需要任务切换，此函数返回 pdTRUE ，否则返回 pdFALSE */
+      //taskYIELD();
+    osDelay(300);
     /*     var[0]++;
     var[1]--; */
   }
@@ -224,10 +234,10 @@ void StartTaskUserIF(void const *argument)
       //K1按下，打印任务执行情况
       case KEY_DOWN_K1:
         printf("=================================================\r\n");
-        printf("任务名                   任务状态     优先级       剩余栈       任务序号\r\n");
+        printf("任务名       任务状态 优先级  剩余栈 任务序号\r\n");
         vTaskList((char *)&pcWriteBuffer);
         printf("%s\r\n", pcWriteBuffer);
-        printf("任务名                   运行计数                   使用率\r\n");
+        printf("任务名       运行计数         使用率\r\n");
         vTaskGetRunTimeStats((char *)&pcWriteBuffer);
         printf("%s\r\n", pcWriteBuffer);
         break;
