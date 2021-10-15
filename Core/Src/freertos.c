@@ -37,7 +37,9 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define BIT_0 (1 << 0)
+#define BIT_1 (1 << 1)
+#define BIT_ALL (BIT_0 | BIT_1)
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -48,6 +50,7 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
 extern uint32_t g_osRuntimeCounter;
+EventGroupHandle_t xCreatedEventGroup = NULL;
 /* USER CODE END Variables */
 osThreadId LEDHandle;
 osThreadId MsgProHandle;
@@ -56,7 +59,7 @@ osThreadId StartHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
-
+static void AppObjCreate(void);
 /* USER CODE END FunctionPrototypes */
 
 void StartTaskLED(void const *argument);
@@ -107,7 +110,7 @@ void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer, StackTyp
 void MX_FREERTOS_Init(void)
 {
   /* USER CODE BEGIN Init */
-
+  AppObjCreate();
   /* USER CODE END Init */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -168,7 +171,7 @@ void StartTaskLED(void const *argument)
     /* 进入临界区*/
     //taskENTER_CRITICAL();
     //vTaskSuspendAll();
-    printf("任务 vTaskLED 正在运行\r\n");
+    //printf("任务 vTaskLED 正在运行\r\n");
     /* 退出临界区*/
     //taskEXIT_CRITICAL();
 
@@ -190,6 +193,8 @@ void StartTaskLED(void const *argument)
 void StartMsgProTask(void const *argument)
 {
   /* USER CODE BEGIN StartMsgProTask */
+  EventBits_t uxBits;
+  const TickType_t xTicksToWait = 100 / portTICK_PERIOD_MS; /* 最大延迟100ms */
   /*   uint8_t var[2] = {0, 255}; */
   /* Infinite loop */
   for (;;)
@@ -198,12 +203,27 @@ void StartMsgProTask(void const *argument)
     /* 进入临界区*/
     //taskENTER_CRITICAL();
     //vTaskSuspendAll(); /* 开启调度锁*/
-    printf("任务 vTaskMsgPro 正在运行\r\n");
+    //printf("任务 vTaskMsgPro 正在运行\r\n");
     /* 退出临界区*/
     //taskEXIT_CRITICAL();
     //if (!xTaskResumeAll()) /* 关闭调度锁，如果需要任务切换，此函数返回 pdTRUE ，否则返回 pdFALSE */
-      //taskYIELD();
-    osDelay(300);
+    //taskYIELD();
+    /* 等K2按键按下设置bit0和K3按键按下设置bit1 */
+    uxBits = xEventGroupWaitBits(xCreatedEventGroup, /* 事件标志组句柄 */
+                                 BIT_ALL,            /* 等待bit0和bit1被设置 */
+                                 pdTRUE,             /* 退出前bit0和bit1被清除，这里是bit0和bit1都被设置才表示“退出”*/
+                                 pdTRUE,             /* 设置为pdTRUE表示等待bit1和bit0都被设置*/
+                                 xTicksToWait);      /* 等待延迟时间 */
+    if ((uxBits & BIT_ALL) == BIT_ALL)
+    {
+      /* 接收到bit1和bit0都被设置的消息 */
+      printf("接收到bit0和bit1都被设置的消息\r\n");
+    }
+    else
+    {
+      printf("超时%d\n", uxBits);
+    }
+
     /*     var[0]++;
     var[1]--; */
   }
@@ -222,6 +242,7 @@ void StartTaskUserIF(void const *argument)
   /* USER CODE BEGIN StartTaskUserIF */
   uint8_t ucKeyCode;
   uint8_t pcWriteBuffer[150]; //该数组过大会导致程序卡死
+  EventBits_t uxBits;
   /* Infinite loop */
   for (;;)
   {
@@ -243,7 +264,12 @@ void StartTaskUserIF(void const *argument)
         break;
         //K2按下，删除vTaskLED任务
       case KEY_DOWN_K2:
-        if (LEDHandle != NULL)
+        uxBits = xEventGroupSetBits(xCreatedEventGroup, BIT_0);
+        printf("K2键按下%d\r\n", uxBits);
+        break;
+        /* K2 键按下，直接发送事件标志给任务 vTaskMsgPro ，设置 bit0 */
+
+        /*         if (LEDHandle != NULL)
         {
           printf("K2 按下，删除任务 vTaskLED\r\n");
           vTaskDelete(LEDHandle);
@@ -253,13 +279,16 @@ void StartTaskUserIF(void const *argument)
         {
           printf("vTaskLED 不存在\r\n");
         }
-
-        break;
+ 
+        break;*/
 
         //K3按下，重新创建vTaskLED任务
       case KEY_DOWN_K3:
-
-        if (LEDHandle == NULL)
+        /* K3键按下，直接发送事件标志给任务vTaskMsgPro，设置bit1 */
+        uxBits = xEventGroupSetBits(xCreatedEventGroup, BIT_1);
+        printf("K3键按下%d\r\n", uxBits);
+        break;
+        /*         if (LEDHandle == NULL)
         {
           printf("K3 按下，重新创建任务 vTaskLED\r\n");
           osThreadDef(LED, StartTaskLED, osPriorityBelowNormal, 0, 128);
@@ -270,7 +299,7 @@ void StartTaskUserIF(void const *argument)
           printf("vTaskLED 已存在\r\n");
         }
         break;
-
+ */
         /* 摇杆UP键按下，挂起任务vTaskLED */
       case JOY_DOWN_U:
         if (LEDHandle == NULL)
@@ -331,6 +360,24 @@ void StartTaskStart(void const *argument)
 void vApplicationStackOverflowHook(TaskHandle_t xTask, signed char *pcTaskName)
 {
   printf("\n任务： ：%s 发现栈溢出\n", pcTaskName);
+}
+/**
+ * @description: 创建任务通信机制
+ * @param {*}
+ * @return {*}
+ */
+static void AppObjCreate(void)
+{ /* 创建事件标志组*/
+  xCreatedEventGroup = xEventGroupCreate();
+  if (xCreatedEventGroup == NULL)
+  {
+    /* 没有创建 成功，用户可以在这里加入创建失败的处理机制*/
+    printf("事件标志组创建失败\n");
+  }
+  else
+  {
+    printf("事件标志组创建成功\n");
+  }
 }
 /* USER CODE END Application */
 
