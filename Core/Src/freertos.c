@@ -135,11 +135,11 @@ void MX_FREERTOS_Init(void)
   LEDHandle = osThreadCreate(osThread(LED), NULL);
 
   /* definition and creation of MsgPro */
-  osThreadDef(MsgPro, StartMsgProTask, osPriorityLow, 0, 128);
+  osThreadDef(MsgPro, StartMsgProTask, osPriorityNormal, 0, 128);
   MsgProHandle = osThreadCreate(osThread(MsgPro), NULL);
 
   /* definition and creation of UserIF */
-  osThreadDef(UserIF, StartTaskUserIF, osPriorityNormal, 0, 128);
+  osThreadDef(UserIF, StartTaskUserIF, osPriorityLow, 0, 128);
   UserIFHandle = osThreadCreate(osThread(UserIF), NULL);
 
   /* definition and creation of Start */
@@ -217,13 +217,8 @@ void StartMsgProTask(void const *argument)
     if ((uxBits & BIT_ALL) == BIT_ALL)
     {
       /* 接收到bit1和bit0都被设置的消息 */
-      printf("接收到bit0和bit1都被设置的消息\r\n");
+      printf("MsgProTask Run\r\n");
     }
-    else
-    {
-      printf("超时%d\n", uxBits);
-    }
-
     /*     var[0]++;
     var[1]--; */
   }
