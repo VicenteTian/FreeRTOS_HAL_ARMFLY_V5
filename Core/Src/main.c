@@ -90,8 +90,9 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();//需要先初始化DMA再初始化串口，否则无法正常运行DMA
   MX_USART1_UART_Init();
-  MX_DMA_Init();
+  
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start_IT(&htim6);

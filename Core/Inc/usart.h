@@ -1,3 +1,9 @@
+/*
+ * @Author: Tian Wei
+ * @Date: 2021-08-24 18:44:21
+ * @Description: 
+ * @Version: V1.0
+ */
 /**
   ******************************************************************************
   * @file    usart.h
@@ -34,7 +40,10 @@ extern "C" {
 extern UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN Private defines */
-
+#define BUFFER_SIZE 20
+extern volatile uint8_t rx_len;  //接收一帧数据的长度
+extern volatile uint8_t recv_end_flag; //一帧数据接收完成标志
+extern uint8_t rx_buffer[BUFFER_SIZE];  //接收数据缓存数组
 /* USER CODE END Private defines */
 
 void MX_USART1_UART_Init(void);

@@ -1,21 +1,21 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * File Name          : freertos.c
-  * Description        : Code for freertos applications
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2021 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under Ultimate Liberty license
-  * SLA0044, the "License"; You may not use this file except in compliance with
-  * the License. You may obtain a copy of the License at:
-  *                             www.st.com/SLA0044
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * File Name          : freertos.c
+ * Description        : Code for freertos applications
+ ******************************************************************************
+ * @attention
+ *
+ * <h2><center>&copy; Copyright (c) 2021 STMicroelectronics.
+ * All rights reserved.</center></h2>
+ *
+ * This software component is licensed by ST under Ultimate Liberty license
+ * SLA0044, the "License"; You may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at:
+ *                             www.st.com/SLA0044
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
@@ -62,15 +62,15 @@ osThreadId StartHandle;
 static void AppObjCreate(void);
 /* USER CODE END FunctionPrototypes */
 
-void StartTaskLED(void const * argument);
-void StartMsgProTask(void const * argument);
-void StartTaskUserIF(void const * argument);
-void StartTaskStart(void const * argument);
+void StartTaskLED(void const *argument);
+void StartMsgProTask(void const *argument);
+void StartTaskUserIF(void const *argument);
+void StartTaskStart(void const *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /* GetIdleTaskMemory prototype (linked to static allocation support) */
-void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize );
+void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize);
 
 /* Hook prototypes */
 void configureTimerForRunTimeStats(void);
@@ -103,11 +103,12 @@ void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer, StackTyp
 /* USER CODE END GET_IDLE_TASK_MEMORY */
 
 /**
-  * @brief  FreeRTOS initialization
-  * @param  None
-  * @retval None
-  */
-void MX_FREERTOS_Init(void) {
+ * @brief  FreeRTOS initialization
+ * @param  None
+ * @retval None
+ */
+void MX_FREERTOS_Init(void)
+{
   /* USER CODE BEGIN Init */
   AppObjCreate();
   /* USER CODE END Init */
@@ -148,49 +149,48 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
-
 }
 
 /* USER CODE BEGIN Header_StartTaskLED */
 /**
-  * @brief  Function implementing the LED thread.
-  * @param  argument: Not used
-  * @retval None
-  */
+ * @brief  Function implementing the LED thread.
+ * @param  argument: Not used
+ * @retval None
+ */
 /* USER CODE END Header_StartTaskLED */
-void StartTaskLED(void const * argument)
+void StartTaskLED(void const *argument)
 {
   /* USER CODE BEGIN StartTaskLED */
-  //TickType_t xLastWakeTime;
-  //const TickType_t xFrequency = 200;
+  // TickType_t xLastWakeTime;
+  // const TickType_t xFrequency = 200;
   /* 获取当前的系统时间*/
-  //xLastWakeTime = xTaskGetTickCount();
+  // xLastWakeTime = xTaskGetTickCount();
   /* Infinite loop */
   for (;;)
   {
     /* 进入临界区*/
-    //taskENTER_CRITICAL();
-    //vTaskSuspendAll();
-    //printf("任务 vTaskLED 正在运行\r\n");
+    // taskENTER_CRITICAL();
+    // vTaskSuspendAll();
+    // printf("任务 vTaskLED 正在运行\r\n");
     /* 退出临界区*/
-    //taskEXIT_CRITICAL();
+    // taskEXIT_CRITICAL();
 
     HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
     osDelay(200);
     /* vTaskDelayUntil 是绝对延迟， vTaskDelay 是相对延迟。*/
-    //vTaskDelayUntil(&xLastWakeTime, xFrequency);
+    // vTaskDelayUntil(&xLastWakeTime, xFrequency);
   }
   /* USER CODE END StartTaskLED */
 }
 
 /* USER CODE BEGIN Header_StartMsgProTask */
 /**
-* @brief Function implementing the MsgPro thread.
-* @param argument: Not used
-* @retval None
-*/
+ * @brief Function implementing the MsgPro thread.
+ * @param argument: Not used
+ * @retval None
+ */
 /* USER CODE END Header_StartMsgProTask */
-void StartMsgProTask(void const * argument)
+void StartMsgProTask(void const *argument)
 {
   /* USER CODE BEGIN StartMsgProTask */
   EventBits_t uxBits;
@@ -201,24 +201,23 @@ void StartMsgProTask(void const * argument)
   {
     /*     vcan_sendware((uint8_t *)var, sizeof(var)); */
     /* 进入临界区*/
-    //taskENTER_CRITICAL();
-    //vTaskSuspendAll(); /* 开启调度锁*/
-    //printf("任务 vTaskMsgPro 正在运行\r\n");
+    // taskENTER_CRITICAL();
+    // vTaskSuspendAll(); /* 开启调度锁*/
+    // printf("任务 vTaskMsgPro 正在运行\r\n");
     /* 退出临界区*/
-    //taskEXIT_CRITICAL();
-    //if (!xTaskResumeAll()) /* 关闭调度锁，如果需要任务切换，此函数返回 pdTRUE ，否则返回 pdFALSE */
-    //taskYIELD();
+    // taskEXIT_CRITICAL();
+    // if (!xTaskResumeAll()) /* 关闭调度锁，如果需要任务切换，此函数返回 pdTRUE ，否则返回 pdFALSE */
+    // taskYIELD();
     /* 等K2按键按下设置bit0和K3按键按下设置bit1 */
-    uxBits = xEventGroupWaitBits(xCreatedEventGroup, /* 事件标志组句柄 */
-                                 BIT_ALL,            /* 等待bit0和bit1被设置 */
-                                 pdTRUE,             /* 退出前bit0和bit1被清除，这里是bit0和bit1都被设置才表示“退出”*/
-                                 pdTRUE,             /* 设置为pdTRUE表示等待bit1和bit0都被设置*/
-                                 xTicksToWait);      /* 等待延迟时间 */
-    if ((uxBits & BIT_ALL) == BIT_ALL)
+    if (recv_end_flag == 1) //接收完成标志
     {
-      /* 接收到bit1和bit0都被设置的消息 */
-      printf("MsgProTask Run\r\n");
+      printf("%d:", rx_len);
+      HAL_UART_Transmit_DMA(&huart1, rx_buffer, rx_len);
+      rx_len = 0;                                            //清除计数
+      recv_end_flag = 0;                                     //清除接收结束标志位
+      HAL_UART_Receive_DMA(&huart1, rx_buffer, BUFFER_SIZE); //重新打开DMA接收
     }
+    osDelay(20);
     /*     var[0]++;
     var[1]--; */
   }
@@ -227,12 +226,12 @@ void StartMsgProTask(void const * argument)
 
 /* USER CODE BEGIN Header_StartTaskUserIF */
 /**
-* @brief Function implementing the UserIF thread.
-* @param argument: Not used
-* @retval None
-*/
+ * @brief Function implementing the UserIF thread.
+ * @param argument: Not used
+ * @retval None
+ */
 /* USER CODE END Header_StartTaskUserIF */
-void StartTaskUserIF(void const * argument)
+void StartTaskUserIF(void const *argument)
 {
   /* USER CODE BEGIN StartTaskUserIF */
   uint8_t ucKeyCode;
@@ -247,7 +246,7 @@ void StartTaskUserIF(void const * argument)
     {
       switch (ucKeyCode)
       {
-      //K1按下，打印任务执行情况
+      // K1按下，打印任务执行情况
       case KEY_DOWN_K1:
         printf("=================================================\r\n");
         printf("任务名       任务状态 优先级  剩余栈 任务序号\r\n");
@@ -257,7 +256,7 @@ void StartTaskUserIF(void const * argument)
         vTaskGetRunTimeStats((char *)&pcWriteBuffer);
         printf("%s\r\n", pcWriteBuffer);
         break;
-        //K2按下，删除vTaskLED任务
+        // K2按下，删除vTaskLED任务
       case KEY_DOWN_K2:
         uxBits = xEventGroupSetBits(xCreatedEventGroup, BIT_0);
         printf("K2键按下%d\r\n", uxBits);
@@ -274,10 +273,10 @@ void StartTaskUserIF(void const * argument)
         {
           printf("vTaskLED 不存在\r\n");
         }
- 
+
         break;*/
 
-        //K3按下，重新创建vTaskLED任务
+        // K3按下，重新创建vTaskLED任务
       case KEY_DOWN_K3:
         /* K3键按下，直接发送事件标志给任务vTaskMsgPro，设置bit1 */
         uxBits = xEventGroupSetBits(xCreatedEventGroup, BIT_1);
@@ -333,12 +332,12 @@ void StartTaskUserIF(void const * argument)
 
 /* USER CODE BEGIN Header_StartTaskStart */
 /**
-* @brief Function implementing the Start thread.
-* @param argument: Not used
-* @retval None
-*/
+ * @brief Function implementing the Start thread.
+ * @param argument: Not used
+ * @retval None
+ */
 /* USER CODE END Header_StartTaskStart */
-void StartTaskStart(void const * argument)
+void StartTaskStart(void const *argument)
 {
   /* USER CODE BEGIN StartTaskStart */
   /* Infinite loop */

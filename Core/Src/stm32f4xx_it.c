@@ -1,21 +1,21 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file    stm32f4xx_it.c
-  * @brief   Interrupt Service Routines.
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2021 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under Ultimate Liberty license
-  * SLA0044, the "License"; You may not use this file except in compliance with
-  * the License. You may obtain a copy of the License at:
-  *                             www.st.com/SLA0044
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file    stm32f4xx_it.c
+ * @brief   Interrupt Service Routines.
+ ******************************************************************************
+ * @attention
+ *
+ * <h2><center>&copy; Copyright (c) 2021 STMicroelectronics.
+ * All rights reserved.</center></h2>
+ *
+ * This software component is licensed by ST under Ultimate Liberty license
+ * SLA0044, the "License"; You may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at:
+ *                             www.st.com/SLA0044
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
@@ -23,6 +23,7 @@
 #include "stm32f4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "UART.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -70,8 +71,8 @@ extern TIM_HandleTypeDef htim1;
 /*           Cortex-M4 Processor Interruption and Exception Handlers          */
 /******************************************************************************/
 /**
-  * @brief This function handles Non maskable interrupt.
-  */
+ * @brief This function handles Non maskable interrupt.
+ */
 void NMI_Handler(void)
 {
   /* USER CODE BEGIN NonMaskableInt_IRQn 0 */
@@ -85,8 +86,8 @@ void NMI_Handler(void)
 }
 
 /**
-  * @brief This function handles Hard fault interrupt.
-  */
+ * @brief This function handles Hard fault interrupt.
+ */
 void HardFault_Handler(void)
 {
   /* USER CODE BEGIN HardFault_IRQn 0 */
@@ -100,8 +101,8 @@ void HardFault_Handler(void)
 }
 
 /**
-  * @brief This function handles Memory management fault.
-  */
+ * @brief This function handles Memory management fault.
+ */
 void MemManage_Handler(void)
 {
   /* USER CODE BEGIN MemoryManagement_IRQn 0 */
@@ -115,8 +116,8 @@ void MemManage_Handler(void)
 }
 
 /**
-  * @brief This function handles Pre-fetch fault, memory access fault.
-  */
+ * @brief This function handles Pre-fetch fault, memory access fault.
+ */
 void BusFault_Handler(void)
 {
   /* USER CODE BEGIN BusFault_IRQn 0 */
@@ -130,8 +131,8 @@ void BusFault_Handler(void)
 }
 
 /**
-  * @brief This function handles Undefined instruction or illegal state.
-  */
+ * @brief This function handles Undefined instruction or illegal state.
+ */
 void UsageFault_Handler(void)
 {
   /* USER CODE BEGIN UsageFault_IRQn 0 */
@@ -145,8 +146,8 @@ void UsageFault_Handler(void)
 }
 
 /**
-  * @brief This function handles Debug monitor.
-  */
+ * @brief This function handles Debug monitor.
+ */
 void DebugMon_Handler(void)
 {
   /* USER CODE BEGIN DebugMonitor_IRQn 0 */
@@ -165,8 +166,8 @@ void DebugMon_Handler(void)
 /******************************************************************************/
 
 /**
-  * @brief This function handles TIM1 update interrupt and TIM10 global interrupt.
-  */
+ * @brief This function handles TIM1 update interrupt and TIM10 global interrupt.
+ */
 void TIM1_UP_TIM10_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM1_UP_TIM10_IRQn 0 */
@@ -179,12 +180,18 @@ void TIM1_UP_TIM10_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles USART1 global interrupt.
-  */
+ * @brief This function handles USART1 global interrupt.
+ */
 void USART1_IRQHandler(void)
 {
   /* USER CODE BEGIN USART1_IRQn 0 */
-
+  if (__HAL_UART_GET_FLAG(&huart1, UART_FLAG_IDLE) != RESET) // idle标志被置位
+  {
+    __HAL_UART_CLEAR_IDLEFLAG(&huart1); //清除标志位
+    HAL_UART_DMAStop(&huart1);
+    rx_len = BUFFER_SIZE - __HAL_DMA_GET_COUNTER(&hdma_usart1_rx); //总计数减去未传输的数据个数，得到已经接收的数据个数
+    recv_end_flag = 1;                                             // 接受完成标志位置1
+  }
   /* USER CODE END USART1_IRQn 0 */
   HAL_UART_IRQHandler(&huart1);
   /* USER CODE BEGIN USART1_IRQn 1 */
@@ -193,8 +200,8 @@ void USART1_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles TIM6 global interrupt, DAC1 and DAC2 underrun error interrupts.
-  */
+ * @brief This function handles TIM6 global interrupt, DAC1 and DAC2 underrun error interrupts.
+ */
 void TIM6_DAC_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
@@ -207,8 +214,8 @@ void TIM6_DAC_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles DMA2 stream2 global interrupt.
-  */
+ * @brief This function handles DMA2 stream2 global interrupt.
+ */
 void DMA2_Stream2_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA2_Stream2_IRQn 0 */
@@ -221,14 +228,19 @@ void DMA2_Stream2_IRQHandler(void)
 }
 
 /**
-  * @brief This function handles DMA2 stream7 global interrupt.
-  */
+ * @brief This function handles DMA2 stream7 global interrupt.
+ */
 void DMA2_Stream7_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA2_Stream7_IRQn 0 */
-
+  huart1.gState = HAL_UART_STATE_READY;
+  hdma_usart1_tx.State = HAL_DMA_STATE_READY;
+  __HAL_DMA_CLEAR_FLAG(&hdma_usart1_tx, DMA_FLAG_TCIF3_7);
+  __HAL_DMA_CLEAR_FLAG(&hdma_usart1_tx, DMA_FLAG_HTIF3_7);
+  __HAL_DMA_CLEAR_FLAG(&hdma_usart1_tx, DMA_FLAG_FEIF3_7);
+  __HAL_UNLOCK(&hdma_usart1_tx);
   /* USER CODE END DMA2_Stream7_IRQn 0 */
-  HAL_DMA_IRQHandler(&hdma_usart1_tx);
+  // HAL_DMA_IRQHandler(&hdma_usart1_tx);
   /* USER CODE BEGIN DMA2_Stream7_IRQn 1 */
 
   /* USER CODE END DMA2_Stream7_IRQn 1 */

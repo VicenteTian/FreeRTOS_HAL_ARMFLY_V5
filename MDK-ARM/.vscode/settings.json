@@ -2,6 +2,13 @@
     "files.associations": {
         "uart.h": "c",
         "freertosconfig.h": "c",
-        "freertos.h": "c"
+        "freertos.h": "c",
+        "usart.h": "c",
+        "atomic": "c",
+        "cstring": "c",
+        "memory": "c",
+        "xmemory": "c",
+        "xstring": "c",
+        "xutility": "c"
     }
 }

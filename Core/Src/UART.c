@@ -81,7 +81,7 @@ uint8_t uart_querybuff(UART_HandleTypeDef *huart, char *buff, uint32_t max_len)
  *  @param      str         字符串地址
  *  @since      v5.0
  *  Sample usage:       uart_putstr (&huart1,"1234567"); //实际发送了7个字节
-  */
+ */
 void uart_putstr(UART_HandleTypeDef *huart, char str[])
 {
   while (*str)
@@ -125,26 +125,31 @@ void vcan_sendware(void *wareaddr, uint32_t waresize)
   uart_putbuff(&husart_debug, (uint8_t *)wareaddr, waresize); //发送数据
   uart_putbuff(&husart_debug, cmdr, sizeof(cmdr));            //发送后命令
 }
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+{
+  //回调函数
+  huart->gState = HAL_UART_STATE_READY;
+}
 /**
-  * 函数功能: 重定向c库函数printf到DEBUG_USARTx
-  * 输入参数: 无
-  * 返 回 值: 无
-  * 说    明：无
-  */
+ * 函数功能: 重定向c库函数printf到DEBUG_USARTx
+ * 输入参数: 无
+ * 返 回 值: 无
+ * 说    明：无
+ */
 int fputc(int ch, FILE *f)
 {
-  HAL_UART_Transmit(&husart_debug, (uint8_t *)&ch, 1, 0);
   while (__HAL_UART_GET_FLAG(&husart_debug, UART_FLAG_TC) != 1)
     ; //等待发送完成
+  HAL_UART_Transmit_DMA(&husart_debug, (uint8_t *)&ch, 1);
   return ch;
 }
 
 /**
-  * 函数功能: 重定向c库函数getchar,scanf到DEBUG_USARTx
-  * 输入参数: 无
-  * 返 回 值: 无
-  * 说    明：改变串口号&huart1即可改变printf所用的串口
-  */
+ * 函数功能: 重定向c库函数getchar,scanf到DEBUG_USARTx
+ * 输入参数: 无
+ * 返 回 值: 无
+ * 说    明：改变串口号&huart1即可改变printf所用的串口
+ */
 int fgetc(FILE *f)
 {
   uint8_t ch = 0;
