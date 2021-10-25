@@ -211,7 +211,6 @@ void StartMsgProTask(void const *argument)
     /* 等K2按键按下设置bit0和K3按键按下设置bit1 */
     if (recv_end_flag == 1) //接收完成标志
     {
-      printf("%d:", rx_len);
       HAL_UART_Transmit_DMA(&huart1, rx_buffer, rx_len);
       rx_len = 0;                                            //清除计数
       recv_end_flag = 0;                                     //清除接收结束标志位
