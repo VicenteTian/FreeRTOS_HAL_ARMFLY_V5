@@ -62,15 +62,15 @@ osThreadId StartHandle;
 static void AppObjCreate(void);
 /* USER CODE END FunctionPrototypes */
 
-void StartTaskLED(void const *argument);
-void StartMsgProTask(void const *argument);
-void StartTaskUserIF(void const *argument);
-void StartTaskStart(void const *argument);
+void StartTaskLED(void const * argument);
+void StartMsgProTask(void const * argument);
+void StartTaskUserIF(void const * argument);
+void StartTaskStart(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /* GetIdleTaskMemory prototype (linked to static allocation support) */
-void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize);
+void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize );
 
 /* Hook prototypes */
 void configureTimerForRunTimeStats(void);
@@ -107,8 +107,7 @@ void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer, StackTyp
   * @param  None
   * @retval None
   */
-void MX_FREERTOS_Init(void)
-{
+void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
   AppObjCreate();
   /* USER CODE END Init */
@@ -135,11 +134,11 @@ void MX_FREERTOS_Init(void)
   LEDHandle = osThreadCreate(osThread(LED), NULL);
 
   /* definition and creation of MsgPro */
-  osThreadDef(MsgPro, StartMsgProTask, osPriorityNormal, 0, 128);
+  osThreadDef(MsgPro, StartMsgProTask, osPriorityLow, 0, 128);
   MsgProHandle = osThreadCreate(osThread(MsgPro), NULL);
 
   /* definition and creation of UserIF */
-  osThreadDef(UserIF, StartTaskUserIF, osPriorityLow, 0, 128);
+  osThreadDef(UserIF, StartTaskUserIF, osPriorityNormal, 0, 128);
   UserIFHandle = osThreadCreate(osThread(UserIF), NULL);
 
   /* definition and creation of Start */
@@ -149,6 +148,7 @@ void MX_FREERTOS_Init(void)
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
+
 }
 
 /* USER CODE BEGIN Header_StartTaskLED */
@@ -158,7 +158,7 @@ void MX_FREERTOS_Init(void)
   * @retval None
   */
 /* USER CODE END Header_StartTaskLED */
-void StartTaskLED(void const *argument)
+void StartTaskLED(void const * argument)
 {
   /* USER CODE BEGIN StartTaskLED */
   //TickType_t xLastWakeTime;
@@ -190,7 +190,7 @@ void StartTaskLED(void const *argument)
 * @retval None
 */
 /* USER CODE END Header_StartMsgProTask */
-void StartMsgProTask(void const *argument)
+void StartMsgProTask(void const * argument)
 {
   /* USER CODE BEGIN StartMsgProTask */
   EventBits_t uxBits;
@@ -232,7 +232,7 @@ void StartMsgProTask(void const *argument)
 * @retval None
 */
 /* USER CODE END Header_StartTaskUserIF */
-void StartTaskUserIF(void const *argument)
+void StartTaskUserIF(void const * argument)
 {
   /* USER CODE BEGIN StartTaskUserIF */
   uint8_t ucKeyCode;
@@ -338,7 +338,7 @@ void StartTaskUserIF(void const *argument)
 * @retval None
 */
 /* USER CODE END Header_StartTaskStart */
-void StartTaskStart(void const *argument)
+void StartTaskStart(void const * argument)
 {
   /* USER CODE BEGIN StartTaskStart */
   /* Infinite loop */
