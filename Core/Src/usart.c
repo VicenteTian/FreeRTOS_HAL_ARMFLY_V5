@@ -56,7 +56,6 @@ void MX_USART1_UART_Init(void)
   }
   /* USER CODE BEGIN USART1_Init 2 */
   __HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);           //使能idle中断
-  __HAL_UART_ENABLE_IT(&huart1, UART_IT_TC);           //使能发送完成中断
   HAL_UART_Receive_DMA(&huart1, rx_buffer, BUFFER_SIZE); //打开DMA接收，数据存入rx_buffer数组中
   /* USER CODE END USART1_Init 2 */
 }

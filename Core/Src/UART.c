@@ -1,5 +1,8 @@
 #include "UART.h"
 #include "usart.h"
+#include "string.h"
+uint8_t *OpenString[LEDNUM] = {"OpenLED1", "OpenLED2", "OpenLED3"};
+uint8_t *CloseString[LEDNUM] = {"CloseLED1", "CloseLED2", "CloseLED3"};
 /*!
  *  @brief      串口发送一个字节
  *  @param      UART_HandleTypeDef *huart   串口指针（如&huart1）
@@ -133,9 +136,9 @@ void vcan_sendware(void *wareaddr, uint32_t waresize)
  */
 int fputc(int ch, FILE *f)
 {
-  //HAL_UART_Transmit_DMA(&husart_debug, (uint8_t *)&ch, 1);
-  HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1,5);
-  //while (__HAL_UART_GET_FLAG(&husart_debug, UART_FLAG_TC) != 1); //等待发送完成
+  // HAL_UART_Transmit_DMA(&husart_debug, (uint8_t *)&ch, 1);
+  HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 5);
+  // while (__HAL_UART_GET_FLAG(&husart_debug, UART_FLAG_TC) != 1); //等待发送完成
   return ch;
 }
 
@@ -158,4 +161,25 @@ void show_array(uint8_t *buf, uint8_t len)
   for (i = 0; i < len; i++)
     printf("%x ", buf[i]);
   printf("\n");
+}
+void vParseString(uint8_t *buffer)
+{
+  uint8_t i = 0;
+  for (i = 0; i < LEDNUM; i++)
+  {
+    if (strcmp((char const *)buffer, (char const *)OpenString[i]) == 0)
+    {
+      printf("LED %d on\r\n", i);
+      return;
+    }
+  }
+  for (i = 0; i < LEDNUM; i++)
+  {
+    if (strcmp((char const *)buffer, (char const *)CloseString[i]) == 0)
+    {
+      printf("LED %d Off\r\n", i);
+      return;
+    }
+  }
+  printf("Wrong cmd\r\n");
 }

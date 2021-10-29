@@ -9,6 +9,7 @@
         "memory": "c",
         "xmemory": "c",
         "xstring": "c",
-        "xutility": "c"
+        "xutility": "c",
+        "string.h": "c"
     }
 }

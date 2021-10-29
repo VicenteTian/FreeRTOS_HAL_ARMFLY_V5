@@ -33,6 +33,7 @@
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 uint32_t g_osRuntimeCounter = 0;
+extern osMessageQId CmdQueueHandle;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
