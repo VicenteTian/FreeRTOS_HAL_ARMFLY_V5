@@ -21,6 +21,7 @@
 #include "main.h"
 #include "cmsis_os.h"
 #include "dma.h"
+#include "rtc.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -91,10 +92,11 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_DMA_Init();//需要先初始化DMA再初始化串口，否则无法正常运行DMA
+	MX_DMA_Init();
   MX_USART1_UART_Init();
   
   MX_TIM6_Init();
+  MX_RTC_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start_IT(&htim6);
   bsp_InitKeyVar();
@@ -133,7 +135,8 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_LSE;
+  RCC_OscInitStruct.LSEState = RCC_LSE_ON;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;

@@ -57,21 +57,26 @@ osThreadId MsgProHandle;
 osThreadId UserIFHandle;
 osThreadId StartHandle;
 osMessageQId CmdQueueHandle;
+osTimerId RTCTimerHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
 static void AppObjCreate(void);
 /* USER CODE END FunctionPrototypes */
 
-void StartTaskLED(void const *argument);
-void StartMsgProTask(void const *argument);
-void StartTaskUserIF(void const *argument);
-void StartTaskStart(void const *argument);
+void StartTaskLED(void const * argument);
+void StartMsgProTask(void const * argument);
+void StartTaskUserIF(void const * argument);
+void StartTaskStart(void const * argument);
+void RTCTimerCallback(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /* GetIdleTaskMemory prototype (linked to static allocation support) */
-void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize);
+void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize );
+
+/* GetTimerTaskMemory prototype (linked to static allocation support) */
+void vApplicationGetTimerTaskMemory( StaticTask_t **ppxTimerTaskTCBBuffer, StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize );
 
 /* Hook prototypes */
 void configureTimerForRunTimeStats(void);
@@ -103,13 +108,25 @@ void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer, StackTyp
 }
 /* USER CODE END GET_IDLE_TASK_MEMORY */
 
-/**
- * @brief  FreeRTOS initialization
- * @param  None
- * @retval None
- */
-void MX_FREERTOS_Init(void)
+/* USER CODE BEGIN GET_TIMER_TASK_MEMORY */
+static StaticTask_t xTimerTaskTCBBuffer;
+static StackType_t xTimerStack[configTIMER_TASK_STACK_DEPTH];
+
+void vApplicationGetTimerTaskMemory( StaticTask_t **ppxTimerTaskTCBBuffer, StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize )
 {
+  *ppxTimerTaskTCBBuffer = &xTimerTaskTCBBuffer;
+  *ppxTimerTaskStackBuffer = &xTimerStack[0];
+  *pulTimerTaskStackSize = configTIMER_TASK_STACK_DEPTH;
+  /* place for user code */
+}
+/* USER CODE END GET_TIMER_TASK_MEMORY */
+
+/**
+  * @brief  FreeRTOS initialization
+  * @param  None
+  * @retval None
+  */
+void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
   AppObjCreate();
   /* USER CODE END Init */
@@ -121,6 +138,11 @@ void MX_FREERTOS_Init(void)
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
+
+  /* Create the timer(s) */
+  /* definition and creation of RTCTimer */
+  osTimerDef(RTCTimer, RTCTimerCallback);
+  RTCTimerHandle = osTimerCreate(osTimer(RTCTimer), osTimerPeriodic, NULL);
 
   /* USER CODE BEGIN RTOS_TIMERS */
   /* start timers, add new ones, ... */
@@ -137,11 +159,11 @@ void MX_FREERTOS_Init(void)
 
   /* Create the thread(s) */
   /* definition and creation of LED */
-  osThreadDef(LED, StartTaskLED, osPriorityLow, 0, 128);
+  osThreadDef(LED, StartTaskLED, osPriorityBelowNormal, 0, 128);
   LEDHandle = osThreadCreate(osThread(LED), NULL);
 
   /* definition and creation of MsgPro */
-  osThreadDef(MsgPro, StartMsgProTask, osPriorityBelowNormal, 0, 128);
+  osThreadDef(MsgPro, StartMsgProTask, osPriorityLow, 0, 128);
   MsgProHandle = osThreadCreate(osThread(MsgPro), NULL);
 
   /* definition and creation of UserIF */
@@ -155,6 +177,7 @@ void MX_FREERTOS_Init(void)
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
+
 }
 
 /* USER CODE BEGIN Header_StartTaskLED */
@@ -164,7 +187,7 @@ void MX_FREERTOS_Init(void)
  * @retval None
  */
 /* USER CODE END Header_StartTaskLED */
-void StartTaskLED(void const *argument)
+void StartTaskLED(void const * argument)
 {
   /* USER CODE BEGIN StartTaskLED */
   uint8_t uResult = pdFALSE;
@@ -182,7 +205,7 @@ void StartTaskLED(void const *argument)
     // printf("任务 vTaskLED 正在运行\r\n");
     /* 退出临界区*/
     // taskEXIT_CRITICAL();
-    uResult = xQueueReceive(CmdQueueHandle, (void *)&uQueueMessage, 300);
+    uResult = xQueueReceive(CmdQueueHandle, (void *)&uQueueMessage, 800);
     if (uResult == pdTRUE)
     {
       printf("收到%d个消息\n", uQueueMessage);
@@ -202,7 +225,7 @@ void StartTaskLED(void const *argument)
  * @retval None
  */
 /* USER CODE END Header_StartMsgProTask */
-void StartMsgProTask(void const *argument)
+void StartMsgProTask(void const * argument)
 {
   /* USER CODE BEGIN StartMsgProTask */
   //EventBits_t uxBits;
@@ -243,7 +266,7 @@ void StartMsgProTask(void const *argument)
  * @retval None
  */
 /* USER CODE END Header_StartTaskUserIF */
-void StartTaskUserIF(void const *argument)
+void StartTaskUserIF(void const * argument)
 {
   /* USER CODE BEGIN StartTaskUserIF */
   uint8_t ucKeyCode;
@@ -349,7 +372,7 @@ void StartTaskUserIF(void const *argument)
  * @retval None
  */
 /* USER CODE END Header_StartTaskStart */
-void StartTaskStart(void const *argument)
+void StartTaskStart(void const * argument)
 {
   /* USER CODE BEGIN StartTaskStart */
   /* Infinite loop */
@@ -359,6 +382,14 @@ void StartTaskStart(void const *argument)
     osDelay(10);
   }
   /* USER CODE END StartTaskStart */
+}
+
+/* RTCTimerCallback function */
+void RTCTimerCallback(void const * argument)
+{
+  /* USER CODE BEGIN RTCTimerCallback */
+
+  /* USER CODE END RTCTimerCallback */
 }
 
 /* Private application code --------------------------------------------------*/
