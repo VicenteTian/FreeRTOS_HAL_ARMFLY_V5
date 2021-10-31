@@ -1,6 +1,6 @@
 #include "UART.h"
 #include "usart.h"
-#include "string.h"
+
 uint8_t *OpenString[LEDNUM] = {"OpenLED1", "OpenLED2", "OpenLED3"};
 uint8_t *CloseString[LEDNUM] = {"CloseLED1", "CloseLED2", "CloseLED3"};
 /*!
@@ -167,17 +167,17 @@ void vParseString(uint8_t *buffer)
   uint8_t i = 0;
   for (i = 0; i < LEDNUM; i++)
   {
-    if (strcmp((char const *)buffer, (char const *)OpenString[i]) == 0)
+    if (strncmp((char const *)buffer, (char const *)OpenString[i], strlen((char const *)OpenString[i])) == 0)
     {
-      printf("LED %d on\r\n", i);
+      printf("LED %d on\r\n", i + 1);
       return;
     }
   }
   for (i = 0; i < LEDNUM; i++)
   {
-    if (strcmp((char const *)buffer, (char const *)CloseString[i]) == 0)
+    if (strncmp((char const *)buffer, (char const *)CloseString[i], strlen((char const *)CloseString[i])) == 0)
     {
-      printf("LED %d Off\r\n", i);
+      printf("LED %d Off\r\n", i + 1);
       return;
     }
   }

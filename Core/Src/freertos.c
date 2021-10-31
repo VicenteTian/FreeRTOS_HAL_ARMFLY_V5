@@ -210,8 +210,8 @@ void StartTaskLED(void const * argument)
     {
       printf("收到%d个消息\n", uQueueMessage);
     }
-    HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
-    osDelay(200);
+/*     HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+    osDelay(200); */
     /* vTaskDelayUntil 是绝对延迟， vTaskDelay 是相对延迟。*/
     // vTaskDelayUntil(&xLastWakeTime, xFrequency);
   }
@@ -248,6 +248,8 @@ void StartMsgProTask(void const * argument)
     {
       //HAL_UART_Transmit_DMA(&huart1, rx_buffer, rx_len);
       xQueueSend(CmdQueueHandle, (void *)&rx_len, 10);
+      vParseString(rx_buffer);
+      memset(rx_buffer,0,rx_len);
       rx_len = 0;                                            //清除计数
       recv_end_flag = 0;                                     //清除接收结束标志位
       HAL_UART_Receive_DMA(&huart1, rx_buffer, BUFFER_SIZE); //重新打开DMA接收
