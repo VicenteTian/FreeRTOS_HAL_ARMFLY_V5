@@ -10,6 +10,7 @@
         "xmemory": "c",
         "xstring": "c",
         "xutility": "c",
-        "string.h": "c"
+        "string.h": "c",
+        "rtc.h": "c"
     }
 }

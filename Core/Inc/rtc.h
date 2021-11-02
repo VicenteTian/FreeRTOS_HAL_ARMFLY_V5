@@ -1,3 +1,9 @@
+/*
+ * @Author: Tian Wei
+ * @Date: 2021-10-30 18:53:54
+ * @Description: 
+ * @Version: V1.0
+ */
 /**
   ******************************************************************************
   * @file    rtc.h
@@ -34,13 +40,19 @@ extern "C" {
 extern RTC_HandleTypeDef hrtc;
 
 /* USER CODE BEGIN Private defines */
+typedef struct
+{
+  RTC_TimeTypeDef RTCTime;
+  RTC_DateTypeDef RTCDate;
+}RTCDateTime;
 
 /* USER CODE END Private defines */
 
 void MX_RTC_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-
+void SetRTCDateTime(RTCDateTime *pRTCDateTime);
+RTCDateTime GetRTCDateTime(void);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

@@ -34,7 +34,7 @@ extern "C" {
 extern UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN Private defines */
-#define BUFFER_SIZE 20
+#define BUFFER_SIZE 40
 extern volatile uint8_t rx_len;  //接收�?帧数据的长度
 extern volatile uint8_t recv_end_flag; //�?帧数据接收完成标�?
 extern uint8_t rx_buffer[BUFFER_SIZE];  //接收数据缓存数组

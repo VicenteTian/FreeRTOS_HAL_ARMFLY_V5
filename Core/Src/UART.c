@@ -167,7 +167,7 @@ void vParseString(uint8_t *buffer)
   uint8_t i = 0;
   for (i = 0; i < LEDNUM; i++)
   {
-    if (strncmp((char const *)buffer, (char const *)OpenString[i], strlen((char const *)OpenString[i])) == 0)
+    if (strncmp((const char *)buffer, (const char *)OpenString[i], strlen((const char *)OpenString[i])) == 0)
     {
       printf("LED %d on\r\n", i + 1);
       return;
@@ -175,11 +175,59 @@ void vParseString(uint8_t *buffer)
   }
   for (i = 0; i < LEDNUM; i++)
   {
-    if (strncmp((char const *)buffer, (char const *)CloseString[i], strlen((char const *)CloseString[i])) == 0)
+    if (strncmp((const char *)buffer, (const char *)CloseString[i], strlen((const char *)CloseString[i])) == 0)
     {
       printf("LED %d Off\r\n", i + 1);
       return;
     }
   }
   printf("Wrong cmd\r\n");
+}
+
+void ParseRealTimeString(uint8_t *buff)
+{
+  char *pBuffDate;
+  char *pBuffTime;
+  RTCDateTime mRTCDateTime;
+  //获取日期字符串指针
+  pBuffDate = strstr((const char *)buff, ":");
+
+  pBuffTime = strstr((const char *)buff, ",");
+
+  if (pBuffDate != NULL)
+  {
+    //指针+1，取出正确的头指针
+    pBuffDate++;
+    pBuffDate = strtok(pBuffDate, ",");
+    mRTCDateTime.RTCDate.Year = atoi(strtok(pBuffDate, "-")) - 2000;
+    mRTCDateTime.RTCDate.Month = atoi(strtok(NULL, "-"));
+    mRTCDateTime.RTCDate.Date = atoi(strtok(NULL, "-"));
+  }
+  if (pBuffTime != NULL)
+  {
+    //指针+1，取出正确的头指针
+    pBuffTime++;
+    mRTCDateTime.RTCTime.Hours = atoi(strtok(pBuffTime, ":"));
+    mRTCDateTime.RTCTime.Minutes = atoi(strtok(NULL, ":"));
+    mRTCDateTime.RTCTime.Seconds = atoi(strtok(NULL, ":"));
+  }
+  printf("set Time: %d-%d-%d,%d:%d:%d\n",
+         mRTCDateTime.RTCDate.Year + 2000,
+         mRTCDateTime.RTCDate.Month,
+         mRTCDateTime.RTCDate.Date,
+         mRTCDateTime.RTCTime.Hours,
+         mRTCDateTime.RTCTime.Minutes,
+         mRTCDateTime.RTCTime.Seconds);
+  SetRTCDateTime(&mRTCDateTime);
+}
+void vRtcCmd(uint8_t *buff)
+{
+  if (strncmp((const char *)buff, REALTIME, strlen(REALTIME)) == 0)
+  {
+    ParseRealTimeString(buff);
+  }
+  /*   if (strncmp((const char *)buff, ALARMTIME, strlen(ALARMTIME)) == 0)
+    {
+      ParseAlarmTimeString(buff);
+    } */
 }

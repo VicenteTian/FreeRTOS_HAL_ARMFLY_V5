@@ -64,19 +64,19 @@ osTimerId RTCTimerHandle;
 static void AppObjCreate(void);
 /* USER CODE END FunctionPrototypes */
 
-void StartTaskLED(void const * argument);
-void StartMsgProTask(void const * argument);
-void StartTaskUserIF(void const * argument);
-void StartTaskStart(void const * argument);
-void RTCTimerCallback(void const * argument);
+void StartTaskLED(void const *argument);
+void StartMsgProTask(void const *argument);
+void StartTaskUserIF(void const *argument);
+void StartTaskStart(void const *argument);
+void RTCTimerCallback(void const *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /* GetIdleTaskMemory prototype (linked to static allocation support) */
-void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize );
+void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize);
 
 /* GetTimerTaskMemory prototype (linked to static allocation support) */
-void vApplicationGetTimerTaskMemory( StaticTask_t **ppxTimerTaskTCBBuffer, StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize );
+void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer, StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize);
 
 /* Hook prototypes */
 void configureTimerForRunTimeStats(void);
@@ -112,7 +112,7 @@ void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer, StackTyp
 static StaticTask_t xTimerTaskTCBBuffer;
 static StackType_t xTimerStack[configTIMER_TASK_STACK_DEPTH];
 
-void vApplicationGetTimerTaskMemory( StaticTask_t **ppxTimerTaskTCBBuffer, StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize )
+void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer, StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize)
 {
   *ppxTimerTaskTCBBuffer = &xTimerTaskTCBBuffer;
   *ppxTimerTaskStackBuffer = &xTimerStack[0];
@@ -122,11 +122,12 @@ void vApplicationGetTimerTaskMemory( StaticTask_t **ppxTimerTaskTCBBuffer, Stack
 /* USER CODE END GET_TIMER_TASK_MEMORY */
 
 /**
-  * @brief  FreeRTOS initialization
-  * @param  None
-  * @retval None
-  */
-void MX_FREERTOS_Init(void) {
+ * @brief  FreeRTOS initialization
+ * @param  None
+ * @retval None
+ */
+void MX_FREERTOS_Init(void)
+{
   /* USER CODE BEGIN Init */
   AppObjCreate();
   /* USER CODE END Init */
@@ -177,7 +178,6 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
-
 }
 
 /* USER CODE BEGIN Header_StartTaskLED */
@@ -187,11 +187,12 @@ void MX_FREERTOS_Init(void) {
  * @retval None
  */
 /* USER CODE END Header_StartTaskLED */
-void StartTaskLED(void const * argument)
+void StartTaskLED(void const *argument)
 {
   /* USER CODE BEGIN StartTaskLED */
-  uint8_t uResult = pdFALSE;
-  uint8_t uQueueMessage = 0;
+  RTCDateTime mRTCDateTime;
+  /*   uint8_t uResult = pdFALSE;
+    uint8_t uQueueMessage = 0; */
   // TickType_t xLastWakeTime;
   // const TickType_t xFrequency = 200;
   /* 获取当前的系统时间*/
@@ -205,13 +206,22 @@ void StartTaskLED(void const * argument)
     // printf("任务 vTaskLED 正在运行\r\n");
     /* 退出临界区*/
     // taskEXIT_CRITICAL();
-    uResult = xQueueReceive(CmdQueueHandle, (void *)&uQueueMessage, 800);
-    if (uResult == pdTRUE)
-    {
-      printf("收到%d个消息\n", uQueueMessage);
-    }
-/*     HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
-    osDelay(200); */
+    /*    uResult = xQueueReceive(CmdQueueHandle, (void *)&uQueueMessage, 1000);
+       if (uResult == pdTRUE)
+       {
+         printf("收到%d个消息\n", uQueueMessage);
+       } */
+    mRTCDateTime = GetRTCDateTime();
+    printf("current Time: %d-%d-%d,%d:%d:%d",
+           mRTCDateTime.RTCDate.Year + 2000,
+           mRTCDateTime.RTCDate.Month,
+           mRTCDateTime.RTCDate.Date,
+           mRTCDateTime.RTCTime.Hours,
+           mRTCDateTime.RTCTime.Minutes,
+           mRTCDateTime.RTCTime.Seconds);
+    osDelay(1000);
+    /*     HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+        osDelay(200); */
     /* vTaskDelayUntil 是绝对延迟， vTaskDelay 是相对延迟。*/
     // vTaskDelayUntil(&xLastWakeTime, xFrequency);
   }
@@ -225,11 +235,11 @@ void StartTaskLED(void const * argument)
  * @retval None
  */
 /* USER CODE END Header_StartMsgProTask */
-void StartMsgProTask(void const * argument)
+void StartMsgProTask(void const *argument)
 {
   /* USER CODE BEGIN StartMsgProTask */
-  //EventBits_t uxBits;
-  //const TickType_t xTicksToWait = 100 / portTICK_PERIOD_MS; /* 最大延迟100ms */
+  // EventBits_t uxBits;
+  // const TickType_t xTicksToWait = 100 / portTICK_PERIOD_MS; /* 最大延迟100ms */
   /*   uint8_t var[2] = {0, 255}; */
   /* Infinite loop */
   for (;;)
@@ -246,10 +256,10 @@ void StartMsgProTask(void const * argument)
     /* 等K2按键按下设置bit0和K3按键按下设置bit1 */
     if (recv_end_flag == 1) //接收完成标志
     {
-      //HAL_UART_Transmit_DMA(&huart1, rx_buffer, rx_len);
+      // HAL_UART_Transmit_DMA(&huart1, rx_buffer, rx_len);
       xQueueSend(CmdQueueHandle, (void *)&rx_len, 10);
-      vParseString(rx_buffer);
-      memset(rx_buffer,0,rx_len);
+      vRtcCmd(rx_buffer);
+      memset(rx_buffer, 0, rx_len);
       rx_len = 0;                                            //清除计数
       recv_end_flag = 0;                                     //清除接收结束标志位
       HAL_UART_Receive_DMA(&huart1, rx_buffer, BUFFER_SIZE); //重新打开DMA接收
@@ -268,7 +278,7 @@ void StartMsgProTask(void const * argument)
  * @retval None
  */
 /* USER CODE END Header_StartTaskUserIF */
-void StartTaskUserIF(void const * argument)
+void StartTaskUserIF(void const *argument)
 {
   /* USER CODE BEGIN StartTaskUserIF */
   uint8_t ucKeyCode;
@@ -374,7 +384,7 @@ void StartTaskUserIF(void const * argument)
  * @retval None
  */
 /* USER CODE END Header_StartTaskStart */
-void StartTaskStart(void const * argument)
+void StartTaskStart(void const *argument)
 {
   /* USER CODE BEGIN StartTaskStart */
   /* Infinite loop */
@@ -387,7 +397,7 @@ void StartTaskStart(void const * argument)
 }
 
 /* RTCTimerCallback function */
-void RTCTimerCallback(void const * argument)
+void RTCTimerCallback(void const *argument)
 {
   /* USER CODE BEGIN RTCTimerCallback */
 
