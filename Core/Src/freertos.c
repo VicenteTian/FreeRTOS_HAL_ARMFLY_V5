@@ -57,26 +57,23 @@ osThreadId MsgProHandle;
 osThreadId UserIFHandle;
 osThreadId StartHandle;
 osMessageQId CmdQueueHandle;
-osTimerId RTCTimerHandle;
-
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
 static void AppObjCreate(void);
 /* USER CODE END FunctionPrototypes */
 
-void StartTaskLED(void const *argument);
-void StartMsgProTask(void const *argument);
-void StartTaskUserIF(void const *argument);
-void StartTaskStart(void const *argument);
-void RTCTimerCallback(void const *argument);
+void StartTaskLED(void const * argument);
+void StartMsgProTask(void const * argument);
+void StartTaskUserIF(void const * argument);
+void StartTaskStart(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /* GetIdleTaskMemory prototype (linked to static allocation support) */
-void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize);
+void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize );
 
 /* GetTimerTaskMemory prototype (linked to static allocation support) */
-void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer, StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize);
+void vApplicationGetTimerTaskMemory( StaticTask_t **ppxTimerTaskTCBBuffer, StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize );
 
 /* Hook prototypes */
 void configureTimerForRunTimeStats(void);
@@ -94,7 +91,6 @@ __weak unsigned long getRunTimeCounterValue(void)
   return g_osRuntimeCounter;
 }
 /* USER CODE END 1 */
-
 /* USER CODE BEGIN GET_IDLE_TASK_MEMORY */
 static StaticTask_t xIdleTaskTCBBuffer;
 static StackType_t xIdleStack[configMINIMAL_STACK_SIZE];
@@ -122,12 +118,11 @@ void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer, StackT
 /* USER CODE END GET_TIMER_TASK_MEMORY */
 
 /**
- * @brief  FreeRTOS initialization
- * @param  None
- * @retval None
- */
-void MX_FREERTOS_Init(void)
-{
+  * @brief  FreeRTOS initialization
+  * @param  None
+  * @retval None
+  */
+void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
   AppObjCreate();
   /* USER CODE END Init */
@@ -139,11 +134,6 @@ void MX_FREERTOS_Init(void)
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
-
-  /* Create the timer(s) */
-  /* definition and creation of RTCTimer */
-  osTimerDef(RTCTimer, RTCTimerCallback);
-  RTCTimerHandle = osTimerCreate(osTimer(RTCTimer), osTimerPeriodic, NULL);
 
   /* USER CODE BEGIN RTOS_TIMERS */
   /* start timers, add new ones, ... */
@@ -178,6 +168,7 @@ void MX_FREERTOS_Init(void)
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
+
 }
 
 /* USER CODE BEGIN Header_StartTaskLED */
@@ -187,7 +178,7 @@ void MX_FREERTOS_Init(void)
  * @retval None
  */
 /* USER CODE END Header_StartTaskLED */
-void StartTaskLED(void const *argument)
+void StartTaskLED(void const * argument)
 {
   /* USER CODE BEGIN StartTaskLED */
   RTCDateTime mRTCDateTime;
@@ -212,7 +203,7 @@ void StartTaskLED(void const *argument)
          printf("收到%d个消息\n", uQueueMessage);
        } */
     mRTCDateTime = GetRTCDateTime();
-    printf("current Time: %d-%d-%d,%d:%d:%d",
+    printf("%d-%d-%d,%d:%d:%d",
            mRTCDateTime.RTCDate.Year + 2000,
            mRTCDateTime.RTCDate.Month,
            mRTCDateTime.RTCDate.Date,
@@ -235,7 +226,7 @@ void StartTaskLED(void const *argument)
  * @retval None
  */
 /* USER CODE END Header_StartMsgProTask */
-void StartMsgProTask(void const *argument)
+void StartMsgProTask(void const * argument)
 {
   /* USER CODE BEGIN StartMsgProTask */
   // EventBits_t uxBits;
@@ -278,7 +269,7 @@ void StartMsgProTask(void const *argument)
  * @retval None
  */
 /* USER CODE END Header_StartTaskUserIF */
-void StartTaskUserIF(void const *argument)
+void StartTaskUserIF(void const * argument)
 {
   /* USER CODE BEGIN StartTaskUserIF */
   uint8_t ucKeyCode;
@@ -384,7 +375,7 @@ void StartTaskUserIF(void const *argument)
  * @retval None
  */
 /* USER CODE END Header_StartTaskStart */
-void StartTaskStart(void const *argument)
+void StartTaskStart(void const * argument)
 {
   /* USER CODE BEGIN StartTaskStart */
   /* Infinite loop */
@@ -394,14 +385,6 @@ void StartTaskStart(void const *argument)
     osDelay(10);
   }
   /* USER CODE END StartTaskStart */
-}
-
-/* RTCTimerCallback function */
-void RTCTimerCallback(void const *argument)
-{
-  /* USER CODE BEGIN RTCTimerCallback */
-
-  /* USER CODE END RTCTimerCallback */
 }
 
 /* Private application code --------------------------------------------------*/

@@ -191,9 +191,7 @@ void ParseRealTimeString(uint8_t *buff)
   RTCDateTime mRTCDateTime;
   //获取日期字符串指针
   pBuffDate = strstr((const char *)buff, ":");
-
   pBuffTime = strstr((const char *)buff, ",");
-
   if (pBuffDate != NULL)
   {
     //指针+1，取出正确的头指针
@@ -220,14 +218,37 @@ void ParseRealTimeString(uint8_t *buff)
          mRTCDateTime.RTCTime.Seconds);
   SetRTCDateTime(&mRTCDateTime);
 }
+void ParseAlarmTimeString(uint8_t *buff)
+{
+  char *pBuffTime;
+  uint32_t AlarmTick = 0;
+  pBuffTime = strstr((const char *)buff, ":");
+  if (pBuffTime != NULL)
+  {
+    pBuffTime++;
+    AlarmTick = atoi(strtok(pBuffTime, ";"));
+  }
+  printf("%d",AlarmTick);
+  TimerHandle_t xTimer = xTimerCreate("ALARM", AlarmTick, pdTRUE, (void *)5, vTimerCallback);
+  if (xTimer != NULL)
+  {
+    xTimerStart(xTimer, 0);
+    printf("start alarm");
+  }
+}
 void vRtcCmd(uint8_t *buff)
 {
   if (strncmp((const char *)buff, REALTIME, strlen(REALTIME)) == 0)
   {
     ParseRealTimeString(buff);
   }
-  /*   if (strncmp((const char *)buff, ALARMTIME, strlen(ALARMTIME)) == 0)
-    {
-      ParseAlarmTimeString(buff);
-    } */
+  if (strncmp((const char *)buff, ALARMTIME, strlen(ALARMTIME)) == 0)
+  {
+    ParseAlarmTimeString(buff);
+  }
+}
+void vTimerCallback(TimerHandle_t pxTimer)
+{
+  uint8_t ulTimerID = (uint8_t)pvTimerGetTimerID(pxTimer);
+  printf("%d alarm on", ulTimerID);
 }

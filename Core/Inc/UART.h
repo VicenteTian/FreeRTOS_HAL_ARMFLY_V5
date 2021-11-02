@@ -13,12 +13,14 @@
 #include "usart.h"
 #include "string.h"
 #include "rtc.h"
-
+#include "FreeRTOS.h"
+#include "timers.h"
 
 #define REALTIME "realtime"
 #define ALARMTIME "alarmtime"
 #define LEDNUM 3
 #define husart_debug     huart1        //printf���ô��ں�
+void vTimerCallback(TimerHandle_t pxTimer);
 void vParseString(uint8_t *buffer);
 void vRtcCmd(uint8_t *buff);
 void ParseRealTimeString(uint8_t *buff);
